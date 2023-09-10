@@ -14,13 +14,13 @@ func (s *StoneGuards) NewGuard(i int) *Guard {
 	g.prevHP = g.obj.CurrentHealth()
 	switch i {
 	case 0:
-		g.obj.Enchant(enchant.PROTECT_FROM_ELECTRICITY, infinite())
+		g.obj.Enchant(enchant.PROTECT_FROM_ELECTRICITY, ns4.Infinite())
 	case 1:
-		g.obj.Enchant(enchant.PROTECT_FROM_FIRE, infinite())
+		g.obj.Enchant(enchant.PROTECT_FROM_FIRE, ns4.Infinite())
 	case 2:
-		g.obj.Enchant(enchant.PROTECT_FROM_POISON, infinite())
+		g.obj.Enchant(enchant.PROTECT_FROM_POISON, ns4.Infinite())
 	}
-	g.obj.Enchant(enchant.FREEZE, infinite())
+	g.obj.Enchant(enchant.FREEZE, ns4.Infinite())
 	g.obj.Freeze(true)
 	g.obj.LookWithAngle(32)
 	g.obj.AggressionLevel(0) // TODO: remove
