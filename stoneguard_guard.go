@@ -56,6 +56,10 @@ func (g *Guard) Delete() {
 		g.ep.Delete()
 		g.ep = nil
 	}
+	if g.forceField != nil {
+		g.forceField.Delete()
+		g.forceField = nil
+	}
 	g.obj.Delete()
 }
 
