@@ -1,9 +1,12 @@
 package mogushan
 
 import (
+	"fmt"
 	"math/rand"
 
 	ns4 "github.com/noxworld-dev/noxscript/ns/v4"
+	"github.com/noxworld-dev/noxscript/ns/v4/effect"
+	"github.com/noxworld-dev/noxscript/ns/v4/enchant"
 	"github.com/noxworld-dev/opennox-lib/object"
 )
 
@@ -22,22 +25,29 @@ const (
 	BossDead
 )
 
+type BossState int
+
 var stoneGuard StoneGuards
 
 type StoneGuards struct {
-	state  int
-	health int
-	bosses []*Guard
+	state       BossState
+	frame       int
+	health      int
+	curEffect   GuardColor
+	startEffect int
+	bosses      []*Guard
 }
 
 func (s *StoneGuards) spawnBoss() {
+	s.curEffect = -1
+	s.frame = 0
 	s.state = BossWaiting
 	s.bosses = nil
 	rand.Shuffle(len(startPos), func(i, j int) {
 		startPos[i], startPos[j] = startPos[j], startPos[i]
 	})
 	for i := 0; i < 3; i++ {
-		s.NewGuard(i)
+		s.NewGuard(GuardColor(i))
 	}
 }
 
@@ -51,15 +61,22 @@ func (s *StoneGuards) Reset() {
 	s.spawnBoss()
 }
 
-func (s *StoneGuards) arePlayersAlive() bool {
+func (s *StoneGuards) allPlayersInRange(fnc func(u ns4.Obj)) {
 	for _, pl := range ns4.Players() {
 		u := pl.Unit()
 		// TODO: check for observer mode
 		if s.inBossRange(u) && u.CurrentHealth() > 0 /* && !u.HasEnchant(enchant.ETHEREAL) */ {
-			return true
+			fnc(u)
 		}
 	}
-	return false
+}
+
+func (s *StoneGuards) arePlayersAlive() bool {
+	ok := false
+	s.allPlayersInRange(func(u ns4.Obj) {
+		ok = true
+	})
+	return ok
 }
 
 func (s *StoneGuards) Update() {
@@ -128,6 +145,8 @@ func (s *StoneGuards) startFight() {
 	for _, pos := range wallPos {
 		ns4.Wall(pos[0], pos[1]).Enable(true)
 	}
+	s.frame = 0
+	s.curEffect = -1
 	s.state = BossFighting
 }
 
@@ -171,5 +190,86 @@ func (s *StoneGuards) fightingUpdate() {
 	for _, g := range s.bosses {
 		g.obj.SetHealth(s.health)
 		g.prevHP = s.health
+	}
+	s.effectUpdate()
+	s.frame++
+}
+
+var effects = []effect.Effect{
+	int(Red):   effect.GREATER_HEAL,
+	int(Green): effect.CHARM,
+	int(Blue):  effect.DRAIN_MANA,
+}
+
+func (s *StoneGuards) resetEffect() {
+	prev := s.curEffect
+	for {
+		s.curEffect = GuardColor(ns4.Random(0, 2))
+		if prev != s.curEffect {
+			break
+		}
+	}
+	s.startEffect = s.frame
+}
+
+func (s *StoneGuards) effectUpdate() {
+	if s.curEffect < 0 {
+		if s.frame < 2*30 { // 2 sec
+			return
+		}
+		s.resetEffect()
+	}
+	eff := effects[s.curEffect]
+	df := s.frame - s.startEffect
+	const max = 60 * 30
+	if df > max { // 60 sec
+		fmt.Println("Effect timeout!")
+		s.resetEffect()
+		for _, pl := range ns4.Players() {
+			u := pl.Unit()
+			if s.inBossRange(u) {
+				u.Enchant(enchant.CONFUSED, ns4.Seconds(10))
+			}
+		}
+		return
+	}
+	power := df / (15 * 30) // each 15 sec
+	if s.frame%(5*30) == 0 {
+		fmt.Printf("Effect power: %d\n", power)
+	}
+
+	var cnt int
+	switch power {
+	case 0:
+		if df%4 == 0 {
+			cnt = 1
+		}
+	case 1:
+		if df%3 == 0 {
+			cnt = 1
+		}
+	case 2:
+		if df%2 == 0 {
+			cnt = 1
+		}
+	default:
+		cnt = 1
+	}
+
+	for i := 0; i < cnt; i++ {
+		v := float32(ns4.Random(0, 690))
+		p0 := ns4.Ptf(4197, 4197)
+		p0 = p0.Add(ns4.Ptf(v, v))
+
+		p1 := p0.Add(ns4.Ptf(-184, +184))
+		p2 := p0.Add(ns4.Ptf(+184, -184))
+
+		switch s.curEffect {
+		case Red, Blue:
+			ns4.Effect(eff, p1, p2)
+			ns4.Effect(eff, p2, p1)
+		case Green:
+			ns4.Effect(eff, p1, p2)
+		}
 	}
 }

@@ -1,24 +1,47 @@
 package mogushan
 
 import (
+	"fmt"
+
 	ns4 "github.com/noxworld-dev/noxscript/ns/v4"
+	"github.com/noxworld-dev/noxscript/ns/v4/damage"
 	"github.com/noxworld-dev/noxscript/ns/v4/enchant"
 	"github.com/noxworld-dev/noxscript/ns/v4/spell"
 )
 
-func (s *StoneGuards) NewGuard(i int) *Guard {
-	g := &Guard{s: s}
-	g.obj = ns4.CreateObject("Troll", startPos[i])
+type GuardColor int
+
+func (c GuardColor) String() string {
+	switch c {
+	case Red:
+		return "Red"
+	case Green:
+		return "Green"
+	case Blue:
+		return "Blue"
+	}
+	return fmt.Sprintf("GuardColor(%d)", int(c))
+}
+
+const (
+	Red = GuardColor(iota)
+	Green
+	Blue
+)
+
+func (s *StoneGuards) NewGuard(color GuardColor) *Guard {
+	g := &Guard{s: s, color: color}
+	g.obj = ns4.CreateObject("Troll", startPos[color])
 	g.obj.SetMaxHealth(BossHealth)
-	g.prevPos = startPos[i]
+	g.prevPos = startPos[color]
 	g.prevHP = g.obj.CurrentHealth()
-	switch i {
-	case 0:
-		g.obj.Enchant(enchant.PROTECT_FROM_ELECTRICITY, ns4.Infinite())
-	case 1:
+	switch color {
+	case Red:
 		g.obj.Enchant(enchant.PROTECT_FROM_FIRE, ns4.Infinite())
-	case 2:
+	case Green:
 		g.obj.Enchant(enchant.PROTECT_FROM_POISON, ns4.Infinite())
+	case Blue:
+		g.obj.Enchant(enchant.PROTECT_FROM_ELECTRICITY, ns4.Infinite())
 	}
 	g.obj.Enchant(enchant.FREEZE, ns4.Infinite())
 	g.obj.Freeze(true)
@@ -34,6 +57,7 @@ func (s *StoneGuards) NewGuard(i int) *Guard {
 
 type Guard struct {
 	s       *StoneGuards
+	color   GuardColor
 	obj     ns4.Obj
 	hp      *HealthBar
 	ep      *EnergyBar
@@ -45,6 +69,8 @@ type Guard struct {
 
 	energy     int
 	forceField ns4.Obj
+
+	red abilitiesRed
 }
 
 func (g *Guard) Delete() {
@@ -60,6 +86,7 @@ func (g *Guard) Delete() {
 		g.forceField.Delete()
 		g.forceField = nil
 	}
+	g.red.Delete()
 	g.obj.Delete()
 }
 
@@ -84,6 +111,7 @@ func (g *Guard) Update() {
 	}
 	g.antiSpell()
 	g.maybeEnableForceField()
+	g.updateAbility()
 	g.prevPos = g.obj.Pos()
 	g.prevHP = g.obj.CurrentHealth()
 	g.frame++
@@ -147,7 +175,7 @@ func (g *Guard) maybeEnableForceField() {
 	if g.frame < 4*30 { // 4 sec
 		return
 	}
-	const fullChargeDur = 50
+	const fullChargeDur = 50 // sec
 	hasAnother := false
 	for _, boss := range g.s.bosses {
 		if boss == g {
@@ -166,7 +194,8 @@ func (g *Guard) maybeEnableForceField() {
 			g.energy++
 		}
 		if g.energy > fullChargeDur {
-			g.energy = fullChargeDur
+			g.triggerExplosion()
+			g.energy = 0
 		}
 		g.ep.Set(float32(g.energy) / float32(fullChargeDur))
 	} else {
@@ -176,4 +205,43 @@ func (g *Guard) maybeEnableForceField() {
 		}
 		g.forceField.SetPos(g.obj.Pos())
 	}
+}
+
+// TODO: set unique damage type?
+var damages = []damage.Type{
+	int(Red):   damage.ZAP_RAY,
+	int(Green): damage.ZAP_RAY,
+	int(Blue):  damage.ZAP_RAY,
+}
+
+func (g *Guard) triggerExplosion() {
+	dmg := 20 // if doesn't match
+	if g.color == g.s.curEffect {
+		dmg = 2 // if matches
+		fmt.Println("Guard triggered effect!")
+		g.s.resetEffect()
+	}
+	fmt.Printf("Guard %s dealing damage: %d\n",
+		g.color.String(), dmg)
+	typ := damages[g.color]
+	g.s.allPlayersInRange(func(u ns4.Obj) {
+		u.Damage(nil, dmg, typ)
+	})
+}
+
+func (g *Guard) updateAbility() {
+	switch g.color {
+	case Red:
+		g.red.Update(g)
+	case Green:
+		g.updateAbilityGreen()
+	case Blue:
+		g.updateAbilityBlue()
+	}
+}
+
+func (g *Guard) updateAbilityGreen() {
+}
+
+func (g *Guard) updateAbilityBlue() {
 }
