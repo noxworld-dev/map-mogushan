@@ -70,7 +70,8 @@ type Guard struct {
 	energy     int
 	forceField ns4.Obj
 
-	red abilitiesRed
+	red  abilitiesRed
+	blue abilitiesBlue
 }
 
 func (g *Guard) Delete() {
@@ -87,6 +88,7 @@ func (g *Guard) Delete() {
 		g.forceField = nil
 	}
 	g.red.Delete()
+	g.blue.Delete()
 	g.obj.Delete()
 }
 
@@ -122,7 +124,16 @@ func (g *Guard) removeFlames() {
 		flames := ns4.FindObjects(nil, ns4.InCirclef{Center: g.obj, R: 5}, ns4.HasTypeName{
 			"SmallFlame",
 			"MediumFlame",
-		})
+		}, ns4.ObjCondFunc(func(obj ns4.Obj) bool {
+			playerOwn := false
+			for _, pl := range ns4.Players() {
+				u := pl.Unit()
+				if obj.HasOwner(u) {
+					playerOwn = true
+				}
+			}
+			return playerOwn
+		}))
 		if flames >= 2 {
 			barrel := ns4.CreateObject("WaterBarrel", g.obj.Pos())
 			barrel.Damage(g.obj, 100, 1)
@@ -236,12 +247,9 @@ func (g *Guard) updateAbility() {
 	case Green:
 		g.updateAbilityGreen()
 	case Blue:
-		g.updateAbilityBlue()
+		g.blue.Update(g)
 	}
 }
 
 func (g *Guard) updateAbilityGreen() {
-}
-
-func (g *Guard) updateAbilityBlue() {
 }
