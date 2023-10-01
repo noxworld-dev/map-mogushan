@@ -82,7 +82,7 @@ func (c Element) NewAbility() Ability {
 	case Red:
 		return &RedAbility{}
 	case Green:
-		return &abilitiesGreen{}
+		return &GreenAbility{}
 	case Blue:
 		return &BlueAbility{}
 	}

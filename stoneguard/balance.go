@@ -15,7 +15,7 @@ const (
 	// BossMass is a mass of a boss unit.
 	BossMass = 20
 	// BossSpeed is a base speed of a boss unit.
-	BossSpeed = 5
+	BossSpeed = 1
 
 	// BossStartFightDist is a distance from a boss to a player when the fight starts.
 	BossStartFightDist = 138
@@ -62,9 +62,11 @@ const (
 // Red ability balance values.
 const (
 	// RedCooldown sets how frequently the boss will cast the Red ability.
-	RedCooldown = 24 // sec
+	RedCooldown = 48 // sec
 	// RedCharge sets how long it will take for Red ability to charge (ray effect switching to flame line).
 	RedCharge = 4 // sec
+
+	RedAfter = 26
 
 	// RedLineCnt sets a number of flames between the boss and the target.
 	RedLineCnt = 3
@@ -90,9 +92,11 @@ const (
 // Blue ability balance values.
 const (
 	// BlueCooldown sets how frequently the boss will cast the Blue ability.
-	BlueCooldown = 24 // sec
+	BlueCooldown = 48 // sec
 	// BlueCharge sets how long it will take for Blue ability to charge (direct lightning switching to circle).
 	BlueCharge = 4 // sec
+
+	BlueAfter = 10
 
 	// BlueDangerModel is a model that indicates a danger of a Blue spell area.
 	BlueDangerModel = "BlueFlame"
@@ -124,4 +128,18 @@ const (
 	BlueInnerModel = "WhiteOrb"
 	// BlueInnerSpeed sets a spin speed for inner circle orbs.
 	BlueInnerSpeed = 0.05
+)
+
+// Green ability balance values.
+const (
+	// GreenCooldown sets how frequently the boss will cast the Green ability.
+	GreenCooldown = 48 // sec
+
+	GreenAfter = 42
+
+	GreenCharge = 4 // sec
+
+	GreenProjMax        = 4
+	GreenProjSpeed      = 2
+	GreenProjSpeedDeath = 8
 )

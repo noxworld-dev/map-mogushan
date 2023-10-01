@@ -10,8 +10,10 @@ import (
 // RedAbility is an ability for Red color/element.
 // It stores all active spells of this kind for a given boss unit.
 type RedAbility struct {
-	charge int
-	active []*redSpell
+	frame    int
+	charge   int
+	active   []*redSpell
+	notFirst bool
 }
 
 // Delete all active Red spells.
@@ -34,6 +36,10 @@ func (g *RedAbility) hasTarget(u ns4.Obj) bool {
 
 // Update all Red spells for a Guard, starting new ones and removing ended ones.
 func (g *RedAbility) Update(b *Guard) {
+	g.frame++
+	if g.frame < RedAfter*ns4.FrameRate() {
+		return
+	}
 	// delete stopped abilities
 	for i := 0; i < len(g.active); i++ {
 		if g.active[i].stop {
@@ -50,7 +56,7 @@ func (g *RedAbility) Update(b *Guard) {
 
 	// charge the ability for this number of frames
 	g.charge++
-	if g.charge < RedCooldown*ns4.FrameRate() {
+	if g.notFirst && g.charge < RedCooldown*ns4.FrameRate() {
 		return // not charged yet
 	}
 	// ability charged - create new spell and reset charge
@@ -72,6 +78,7 @@ func (g *RedAbility) Update(b *Guard) {
 	g.active = append(g.active, &redSpell{
 		target: targ,
 	})
+	g.notFirst = true
 }
 
 // redSpell stores state of a single Red spell.

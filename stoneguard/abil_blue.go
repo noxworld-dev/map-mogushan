@@ -12,8 +12,10 @@ import (
 // BlueAbility is an ability for Blue color/element.
 // It stores all active spells of this kind for a given boss unit.
 type BlueAbility struct {
-	charge int
-	active []*blueSpell
+	frame    int
+	charge   int
+	active   []*blueSpell
+	notFirst bool
 }
 
 // Delete all active Blue spells.
@@ -26,6 +28,10 @@ func (g *BlueAbility) Delete() {
 
 // Update all Blue spells for a Guard, starting new ones and removing ended ones.
 func (g *BlueAbility) Update(b *Guard) {
+	g.frame++
+	if g.frame < BlueAfter*ns4.FrameRate() {
+		return
+	}
 	// delete stopped abilities
 	for i := 0; i < len(g.active); i++ {
 		if g.active[i].stop {
@@ -42,7 +48,7 @@ func (g *BlueAbility) Update(b *Guard) {
 
 	// charge the ability for this number of frames
 	g.charge++
-	if g.charge < BlueCooldown*ns4.FrameRate() {
+	if g.notFirst && g.charge < BlueCooldown*ns4.FrameRate() {
 		return // not charged yet
 	}
 	// ability charged - create new spell and reset charge
@@ -62,6 +68,7 @@ func (g *BlueAbility) Update(b *Guard) {
 	g.active = append(g.active, &blueSpell{
 		target: targ,
 	})
+	g.notFirst = true
 }
 
 // blueSpell stores state of a single Blue spell.

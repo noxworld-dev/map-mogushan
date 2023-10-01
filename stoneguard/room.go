@@ -5,6 +5,7 @@ package stoneguard
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 
 	ns4 "github.com/noxworld-dev/noxscript/ns/v4"
@@ -164,4 +165,44 @@ func (s *State) roomEffectUpdate() {
 			ns4.Effect(eff, p1, p2)
 		}
 	}
+}
+
+var wallPoints = []ns4.Pointf{
+	{3990, 4381}, // left
+	{4381, 3990}, // top
+	{5094, 4703}, // right
+	{4703, 5094}, // bottom
+}
+
+var walls = []ns4.Pointf{
+	wallPoints[3].Sub(wallPoints[0]), // left
+	wallPoints[0].Sub(wallPoints[1]), // far
+	wallPoints[1].Sub(wallPoints[2]), // right
+	wallPoints[2].Sub(wallPoints[3]), // close
+}
+
+var (
+	phiLeft  = math.Atan2(float64(walls[0].Y), float64(walls[0].X))
+	phiRight = math.Atan2(float64(walls[2].Y), float64(walls[2].X))
+	phiFar   = math.Atan2(float64(walls[1].Y), float64(walls[1].X))
+	phiClose = math.Atan2(float64(walls[3].Y), float64(walls[3].X))
+)
+
+func hitsWall(pos, vec ns4.Pointf) (ns4.Pointf, bool) {
+	phi := math.Atan2(float64(vec.Y), float64(vec.X))
+	var wph float64
+	if pos.X+pos.Y < 8371 {
+		wph = phiFar
+	} else if pos.X+pos.Y > 9797 {
+		wph = phiClose
+	} else if pos.X-pos.Y > 391 {
+		wph = phiRight
+	} else if pos.X-pos.Y < -391 {
+		wph = phiLeft
+	} else {
+		return vec, false
+	}
+	dphi := wph - phi
+	phi = wph + dphi
+	return ns4.Pointf{X: float32(math.Cos(phi)), Y: float32(math.Sin(phi))}, true
 }

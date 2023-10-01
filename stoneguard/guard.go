@@ -13,9 +13,6 @@ import (
 
 // NewGuard creates a new guard boss unit with a given color and position.
 func (s *State) NewGuard(color Element, pos types.Pointf) *Guard {
-	fmt.Printf("NewGuard: %s (%d), ench=%v, room=%v; Red=%d, Green=%d, Blue=%d\n",
-		color.String(), int(color), color.Enchant(), color.RoomEffect(),
-		int(Red), int(Green), int(Blue))
 	g := &Guard{s: s, color: color}
 	// Create an actual boss unit and set it up.
 	g.unit = ns4.CreateObject(BossModel, pos)
@@ -254,6 +251,7 @@ func (g *Guard) gatherEnergyOrShield() {
 
 // triggerExplosion creates an elemental explosion from the unit.
 func (g *Guard) triggerExplosion() {
+	ns4.CastSpell(spell.TURN_UNDEAD, g.unit, g.unit)
 	var dmg int
 	if g.color == g.s.curEffect {
 		// If room effect matches the unit color/element - deal minor damage and switch room effect.
