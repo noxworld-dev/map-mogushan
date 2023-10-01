@@ -1,4 +1,4 @@
-package mogushan
+package ui
 
 import (
 	ns4 "github.com/noxworld-dev/noxscript/ns/v4"
