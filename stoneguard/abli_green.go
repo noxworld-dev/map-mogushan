@@ -103,7 +103,7 @@ func (g *greenSpell) Update(b *Guard) {
 	if g.charge != nil {
 		g.charge.Delete()
 		g.charge = nil
-		b.unit.AggressionLevel(1)
+		b.unit.AggressionLevel(BossAggression)
 	}
 	if g.ball != nil && g.ball.Flags().HasAny(object.FlagDead|object.FlagDestroyed) {
 		g.ball = nil
@@ -126,7 +126,7 @@ func (g *greenSpell) Update(b *Guard) {
 		g.pos = boss.Pos()
 		g.vec = targ.Sub(boss.Pos()).Normalize()
 
-		g.proj = ns4.CreateObject("CurePoisonPotion", g.pos)
+		g.proj = ns4.CreateObject(GreenProjModel, g.pos)
 		if g.proj == nil {
 			panic("cannot create!")
 		}
@@ -143,19 +143,19 @@ func (g *greenSpell) Update(b *Guard) {
 	}
 	var hit bool
 	g.vec, hit = hitsWall(g.pos, g.vec)
-	if dt := g.frame - g.lastHit; dt >= 1*ns4.FrameRate() {
+	if dt := g.frame - g.lastHit; dt >= GreenProjKickInterval*ns4.FrameRate() {
 		b.s.EachPlayerInRoom(func(u ns4.Obj) {
 			if dt == 0 {
 				return
 			}
-			if sub := u.Pos().Sub(g.pos); sub.Len() < 23 {
+			if sub := u.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
 				g.vec = sub.Normalize().Mul(-1)
 				g.lastHit = g.frame
 				dt = 0
 			}
 		})
 		for _, b2 := range b.s.bosses {
-			if sub := b2.unit.Pos().Sub(g.pos); sub.Len() < 23 {
+			if sub := b2.unit.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
 				g.vec = sub.Normalize().Mul(-1)
 				g.lastHit = g.frame
 				break

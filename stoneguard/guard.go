@@ -32,6 +32,8 @@ func (s *State) NewGuard(color Element, pos types.Pointf) *Guard {
 	if Debug {
 		// Disable aggression when testing the map.
 		g.unit.AggressionLevel(0)
+	} else {
+		g.unit.AggressionLevel(BossAggression)
 	}
 	//fmt.Printf("speed: %v\n", obj.BaseSpeed())
 	g.unit.SetBaseSpeed(BossSpeed)

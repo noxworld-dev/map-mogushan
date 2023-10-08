@@ -16,6 +16,8 @@ const (
 	BossMass = 20
 	// BossSpeed is a base speed of a boss unit.
 	BossSpeed = 1
+	// BossAggression sets default boss aggression level.
+	BossAggression = 1
 
 	// BossStartFightDist is a distance from a boss to a player when the fight starts.
 	BossStartFightDist = 138
@@ -65,7 +67,7 @@ const (
 	RedCooldown = 48 // sec
 	// RedCharge sets how long it will take for Red ability to charge (ray effect switching to flame line).
 	RedCharge = 4 // sec
-
+	// RedAfter sets a delay before the first Red ability is fired. After that, it will fire according to RedCooldown.
 	RedAfter = 26
 
 	// RedLineCnt sets a number of flames between the boss and the target.
@@ -95,7 +97,7 @@ const (
 	BlueCooldown = 48 // sec
 	// BlueCharge sets how long it will take for Blue ability to charge (direct lightning switching to circle).
 	BlueCharge = 4 // sec
-
+	// BlueAfter sets a delay before the first Blue ability is fired. After that, it will fire according to BlueCooldown.
 	BlueAfter = 10
 
 	// BlueDangerModel is a model that indicates a danger of a Blue spell area.
@@ -134,12 +136,21 @@ const (
 const (
 	// GreenCooldown sets how frequently the boss will cast the Green ability.
 	GreenCooldown = 48 // sec
-
+	// GreenAfter sets a delay before the first Green ability is fired. After that, it will fire according to GreenCooldown.
 	GreenAfter = 42
-
+	// GreenCharge sets how long it will take for Green ability to charge (FoN effect to projectile).
 	GreenCharge = 4 // sec
 
-	GreenProjMax        = 4
-	GreenProjSpeed      = 2
+	// GreenProjMax sets maximal amount of Green spell projectiles.
+	GreenProjMax = 4
+	// GreenProjSpeed sets the speed of small Green projectile.
+	GreenProjSpeed = 2
+	// GreenProjSpeedDeath sets the speed of large Green projectile.
 	GreenProjSpeedDeath = 8
+	// GreenProjKickInterval sets a minimal interval at which the Green projectile can be kicked around.
+	GreenProjKickInterval = 1 // sec
+	// GreenProjKickDist sets a distance at which green projectile is kicked.
+	GreenProjKickDist = 23
+	// GreenProjModel sets an object model for small Green projectile.
+	GreenProjModel = "CurePoisonPotion"
 )
