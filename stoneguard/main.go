@@ -29,6 +29,7 @@ type State struct {
 	frame           int
 	health          int
 	curEffect       Element // current room effect
+	firstEffect     bool
 	roomEffectStart int
 	explodedAt      int
 	bosses          []*Guard
@@ -65,6 +66,7 @@ func (s *State) Reset() {
 func (s *State) spawnBoss() {
 	// set initial state
 	s.curEffect = -1
+	s.firstEffect = true
 	s.frame = 0
 	s.state = BossWaiting
 	s.bosses = nil
@@ -151,6 +153,7 @@ func (s *State) startFight() {
 	// init other state
 	s.frame = 0
 	s.curEffect = -1
+	s.firstEffect = true
 	s.state = BossFighting
 }
 

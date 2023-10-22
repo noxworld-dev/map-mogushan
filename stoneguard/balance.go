@@ -51,7 +51,8 @@ const (
 	RoomEffectDelay = 2 // sec
 
 	// RoomEffectTimeout is a duration when room effect switches, confusing players.
-	RoomEffectTimeout = 60 // sec
+	RoomEffectTimeout      = 60 // sec
+	RoomEffectFirstTimeout = 80 // sec
 	// RoomEffectTimeoutConfuse is a duration of confuse effect cast on players after room effect timeout.
 	RoomEffectTimeoutConfuse = 10 // sec
 

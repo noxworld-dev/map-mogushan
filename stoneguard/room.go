@@ -89,6 +89,7 @@ func (s *State) nextRoomEffect() {
 		}
 	}
 	s.roomEffectStart = s.frame
+	s.firstEffect = false
 }
 
 // roomEffectUpdate updates the global boss room effect.
@@ -105,7 +106,11 @@ func (s *State) roomEffectUpdate() {
 	df := s.frame - s.roomEffectStart
 
 	// Check if effect should timeout.
-	if df > RoomEffectTimeout*ns4.FrameRate() {
+	timeout := RoomEffectTimeout
+	if s.firstEffect {
+		timeout = RoomEffectFirstTimeout
+	}
+	if df > timeout*ns4.FrameRate() {
 		// Switch effect and confuse players.
 		fmt.Println("Effect timeout!")
 		s.nextRoomEffect()
