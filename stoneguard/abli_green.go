@@ -143,22 +143,24 @@ func (g *greenSpell) Update(b *Guard) {
 	}
 	var hit bool
 	g.vec, hit = hitsWall(g.pos, g.vec)
-	if dt := g.frame - g.lastHit; dt >= GreenProjKickInterval*ns4.FrameRate() {
-		b.s.EachPlayerInRoom(func(u ns4.Obj) {
-			if dt == 0 {
-				return
-			}
-			if sub := u.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
-				g.vec = sub.Normalize().Mul(-1)
-				g.lastHit = g.frame
-				dt = 0
-			}
-		})
-		for _, b2 := range b.s.bosses {
-			if sub := b2.unit.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
-				g.vec = sub.Normalize().Mul(-1)
-				g.lastHit = g.frame
-				break
+	if g.ball == nil {
+		if dt := g.frame - g.lastHit; dt >= GreenProjKickInterval*ns4.FrameRate() {
+			b.s.EachPlayerInRoom(func(u ns4.Obj) {
+				if dt == 0 {
+					return
+				}
+				if sub := u.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
+					g.vec = sub.Normalize().Mul(-1)
+					g.lastHit = g.frame
+					dt = 0
+				}
+			})
+			for _, b2 := range b.s.bosses {
+				if sub := b2.unit.Pos().Sub(g.pos); sub.Len() < GreenProjKickDist {
+					g.vec = sub.Normalize().Mul(-1)
+					g.lastHit = g.frame
+					break
+				}
 			}
 		}
 	}
