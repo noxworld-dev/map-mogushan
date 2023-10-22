@@ -243,7 +243,7 @@ func (g *Guard) gatherEnergyOrShield() {
 		g.ep.Set(float32(g.energy) / float32(EnergyExplosionChargeDur))
 	} else {
 		// If no other boss is around - make unit invulnerable and show a force field.
-		g.unit.Enchant(enchant.INVULNERABLE, ns4.Frames(1))
+		g.unit.Enchant(enchant.INVULNERABLE, ns4.Frames(2))
 		if g.forceField == nil {
 			g.forceField = ns4.CreateObject(EnergyShieldModel, g.unit)
 		}
