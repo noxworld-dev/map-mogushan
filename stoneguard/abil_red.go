@@ -18,6 +18,10 @@ type RedAbility struct {
 
 // Delete all active Red spells.
 func (g *RedAbility) Delete() {
+	g.reset()
+}
+
+func (g *RedAbility) reset() {
 	for _, a := range g.active {
 		a.Delete()
 	}
@@ -61,6 +65,10 @@ func (g *RedAbility) Update(b *Guard) {
 	}
 	// ability charged - create new spell and reset charge
 	g.charge = 0
+
+	if RedOnlyOne {
+		g.reset()
+	}
 
 	// pick random player position in boss room
 	var players []ns4.Obj

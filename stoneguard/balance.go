@@ -69,6 +69,8 @@ const (
 	RedCharge = 4 // sec
 	// RedAfter sets a delay before the first Red ability is fired. After that, it will fire according to RedCooldown.
 	RedAfter = 26
+	// RedOnlyOne limits Red ability to a single target.
+	RedOnlyOne = true
 
 	// RedLineCnt sets a number of flames between the boss and the target.
 	RedLineCnt = 3
