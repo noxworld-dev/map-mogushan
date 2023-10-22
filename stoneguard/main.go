@@ -30,6 +30,7 @@ type State struct {
 	health          int
 	curEffect       Element // current room effect
 	roomEffectStart int
+	explodedAt      int
 	bosses          []*Guard
 }
 

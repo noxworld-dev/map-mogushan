@@ -232,7 +232,9 @@ func (g *Guard) gatherEnergyOrShield() {
 		}
 		// Energy is increased each second.
 		if g.frame%ns4.FrameRate() == 0 {
-			g.energy++
+			if df := ns4.Frame() - g.s.explodedAt; df <= 0 || df > EnergyDelay*ns4.FrameRate() {
+				g.energy++
+			}
 		}
 		// When charged to 100% - trigger explosion.
 		if g.energy > EnergyExplosionChargeDur {
@@ -253,6 +255,7 @@ func (g *Guard) gatherEnergyOrShield() {
 
 // triggerExplosion creates an elemental explosion from the unit.
 func (g *Guard) triggerExplosion() {
+	g.s.explodedAt = ns4.Frame()
 	ns4.CastSpell(spell.TURN_UNDEAD, g.unit, g.unit)
 	var dmg int
 	if g.color == g.s.curEffect {
