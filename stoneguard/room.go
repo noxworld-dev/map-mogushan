@@ -102,7 +102,6 @@ func (s *State) roomEffectUpdate() {
 		s.nextRoomEffect()
 	}
 	// Check current effect and its duration.
-	eff := s.curEffect.RoomEffect()
 	df := s.frame - s.roomEffectStart
 
 	// Check if effect should timeout.
@@ -127,7 +126,10 @@ func (s *State) roomEffectUpdate() {
 	if Debug && s.frame%(RoomEffectPowerReport*ns4.FrameRate()) == 0 {
 		fmt.Printf("Effect power: %d\n", power)
 	}
+	drawRoomEffect(s.curEffect, df, power, roomAxisStart, roomLength, roomWidth)
+}
 
+func drawRoomEffect(e Element, df, power int, axisStart types.Pointf, roomW, roomH int) {
 	// Choose effect density based on the current effect power.
 	var cnt int
 	switch power {
@@ -147,21 +149,22 @@ func (s *State) roomEffectUpdate() {
 		cnt = 1 // every frame
 	}
 
+	eff := e.RoomEffect()
 	// Spawn 'cnt' effects across the room.
 	for i := 0; i < cnt; i++ {
 		// Room is placed right on the diagonal.
-		p0 := roomAxisStart
+		p0 := axisStart
 
 		// Pick random point across the diagonal.
-		v := float32(ns4.Random(0, roomLength))
+		v := float32(ns4.Random(0, roomW))
 		p0 = p0.Add(ns4.Ptf(v, v))
 
 		// Effect crosses the whole room, perpendicular to diagonal.
-		p1 := p0.Add(ns4.Ptf(-roomWidth/2, +roomWidth/2))
-		p2 := p0.Add(ns4.Ptf(+roomWidth/2, -roomWidth/2))
+		p1 := p0.Add(ns4.Ptf(-float32(roomH)/2, +float32(roomH)/2))
+		p2 := p0.Add(ns4.Ptf(+float32(roomH)/2, -float32(roomH)/2))
 
 		// Display the actual effect.
-		switch s.curEffect {
+		switch e {
 		case Red, Blue:
 			ns4.Effect(eff, p1, p2)
 			ns4.Effect(eff, p2, p1)

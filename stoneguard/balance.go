@@ -62,6 +62,17 @@ const (
 	RoomEffectPowerReport = 5 // sec
 )
 
+const (
+	// DemoEffectTimeout is a duration of a demo room effect.
+	DemoEffectTimeout = 20 // sec
+	// DemoEffectPowerInterval is an interval of a demo room effect power increase.
+	DemoEffectPowerInterval = 5 // sec
+	// DemoBossPlayersFreeze is a duration of players freeze effect.
+	DemoBossPlayersFreeze = 10 // sec
+	// DemoBossUnfreeze is a duration of boss freeze.
+	DemoBossUnfreeze = 8 // sec
+)
+
 // Red ability balance values.
 const (
 	// RedCooldown sets how frequently the boss will cast the Red ability.
