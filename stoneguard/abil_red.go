@@ -93,7 +93,7 @@ func (g *RedAbility) Update(b *Guard) {
 type redSpell struct {
 	target ns4.Obj
 	frame  int
-	line   []ns4.Obj // flame line between the boss and target
+	line   ns4.Objects // flame line between the boss and target
 	reduce int
 	strong [4]ns4.Obj // flame variations for the strong flame that tries to hit the player (large to small)
 	weak   [4]ns4.Obj // weak flames that will circle the target for the weak spell variant
@@ -103,9 +103,7 @@ type redSpell struct {
 // Delete a single Red spell.
 func (g *redSpell) Delete() {
 	// delete the flame line
-	for _, a := range g.line {
-		a.Delete()
-	}
+	g.line.Delete()
 	g.line = nil
 	// delete strong target effect
 	for i, a := range g.strong {

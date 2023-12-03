@@ -46,7 +46,7 @@ const (
 )
 
 type DemoState struct {
-	urchins []ns4.Obj
+	urchins ns4.Objects
 	boss    ns4.Obj
 	shield  ns4.Obj
 	status  DemoStatus
@@ -55,9 +55,7 @@ type DemoState struct {
 }
 
 func (d *DemoState) Delete() {
-	for _, obj := range d.urchins {
-		obj.Delete()
-	}
+	d.urchins.Delete()
 	d.urchins = nil
 	if d.boss != nil {
 		d.boss.Delete()

@@ -75,21 +75,17 @@ func (g *BlueAbility) Update(b *Guard) {
 type blueSpell struct {
 	target ns4.Pointf
 	frame  int
-	outer  []ns4.Obj // outer orbs
-	inner  []ns4.Obj // inner orbs
-	flame  ns4.Obj   // central flame
+	outer  ns4.Objects // outer orbs
+	inner  ns4.Objects // inner orbs
+	flame  ns4.Obj     // central flame
 	stop   bool
 }
 
 // Delete a single Blue spell.
 func (g *blueSpell) Delete() {
-	for _, a := range g.outer {
-		a.Delete()
-	}
+	g.outer.Delete()
 	g.outer = nil
-	for _, b := range g.inner {
-		b.Delete()
-	}
+	g.inner.Delete()
 	g.inner = nil
 	if g.flame != nil {
 		g.flame.Delete()
